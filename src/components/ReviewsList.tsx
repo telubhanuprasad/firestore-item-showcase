@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,11 +16,9 @@ const ReviewsList = ({ itemId, refreshTrigger }: ReviewsListProps) => {
 
   useEffect(() => {
     const fetchReviews = async () => {
-      console.log("ReviewsList: Fetching reviews for item:", itemId);
       setLoading(true);
       try {
         const fetchedReviews = await getReviewsForItem(itemId);
-        console.log("ReviewsList: Received reviews:", fetchedReviews);
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("ReviewsList: Error fetching reviews:", error);
@@ -34,8 +31,6 @@ const ReviewsList = ({ itemId, refreshTrigger }: ReviewsListProps) => {
       fetchReviews();
     }
   }, [itemId, refreshTrigger]);
-
-  console.log("ReviewsList: Current state - loading:", loading, "reviews count:", reviews.length);
 
   if (loading) {
     return <div className="text-center text-gray-500 py-4">Loading reviews...</div>;
