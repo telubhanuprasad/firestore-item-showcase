@@ -1,5 +1,5 @@
 
-import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import { Review } from '../types/review';
 
@@ -11,7 +11,7 @@ export const addReview = async (itemId: string, rating: number, comment: string,
       rating,
       comment,
       reviewerName,
-      createdAt: new Date()
+      createdAt: serverTimestamp()
     });
     console.log("Review added with ID: ", docRef.id);
     return docRef.id;
@@ -30,11 +30,14 @@ export const getReviewsForItem = async (itemId: string): Promise<Review[]> => {
       orderBy("createdAt", "desc")
     );
     const querySnapshot = await getDocs(q);
-    const reviews = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt.toDate()
-    })) as Review[];
+    const reviews = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date()
+      };
+    }) as Review[];
     console.log("Fetched reviews:", reviews);
     return reviews;
   } catch (error) {
