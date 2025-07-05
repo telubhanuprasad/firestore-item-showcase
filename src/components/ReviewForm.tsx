@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,7 @@ const ReviewForm = ({ itemId, onReviewAdded }: ReviewFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!rating || !comment.trim() || !reviewerName.trim()) {
       toast({
         title: "Missing Information",
@@ -40,8 +39,6 @@ const ReviewForm = ({ itemId, onReviewAdded }: ReviewFormProps) => {
         title: "Review Added",
         description: "Your review has been successfully added!",
       });
-      
-      // Reset form
       setRating(0);
       setComment('');
       setReviewerName('');
@@ -61,7 +58,7 @@ const ReviewForm = ({ itemId, onReviewAdded }: ReviewFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4 rounded-lg">
       <h3 className="text-lg font-semibold text-gray-900">Add Your Review</h3>
-      
+
       <div>
         <Label htmlFor="reviewerName">Your Name</Label>
         <Input
