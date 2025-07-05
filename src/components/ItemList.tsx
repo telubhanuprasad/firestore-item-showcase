@@ -1,11 +1,14 @@
-
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Package, DollarSign, MessageCircle } from "lucide-react";
+import ReviewForm from './ReviewForm';
+import ReviewsList from './ReviewsList';
 
 interface Item {
   id: string;
@@ -18,6 +21,8 @@ const ItemList = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -40,6 +45,10 @@ const ItemList = () => {
 
     fetchItems();
   }, []);
+
+  const handleReviewAdded = () => {
+    setReviewRefreshTrigger(prev => prev + 1);
+  };
 
   if (loading) {
     return (
@@ -108,10 +117,7 @@ const ItemList = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map(item => (
-            <Card 
-              key={item.id} 
-              className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md bg-white"
-            >
+            <Card key={item.id} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md bg-white">
               <CardHeader className="pb-3">
                 <CardTitle className="text-xl font-bold text-gray-900 flex items-start justify-between">
                   <span className="flex-1">{item.name}</span>
@@ -124,7 +130,7 @@ const ItemList = () => {
                 <p className="text-gray-600 mb-4 leading-relaxed">
                   {item.description}
                 </p>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg">
                     <DollarSign className="h-4 w-4 text-green-600" />
                     <span className="text-xl font-bold text-green-700">
@@ -135,6 +141,51 @@ const ItemList = () => {
                     Premium Quality
                   </div>
                 </div>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      className="w-full" 
+                      onClick={() => setSelectedItem(item)}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      View Reviews & Add Review
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold">
+                        Reviews for {selectedItem?.name}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-6">
+                      {selectedItem && (
+                        <>
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <h3 className="font-semibold text-gray-900 mb-2">{selectedItem.name}</h3>
+                            <p className="text-gray-600 text-sm mb-2">{selectedItem.description}</p>
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="h-4 w-4 text-green-600" />
+                              <span className="font-bold text-green-700">
+                                ${typeof selectedItem.price === 'number' ? selectedItem.price.toFixed(2) : selectedItem.price}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <ReviewsList 
+                            itemId={selectedItem.id} 
+                            refreshTrigger={reviewRefreshTrigger}
+                          />
+                          
+                          <ReviewForm 
+                            itemId={selectedItem.id} 
+                            onReviewAdded={handleReviewAdded}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           ))}
