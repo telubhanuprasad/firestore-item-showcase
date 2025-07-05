@@ -47,6 +47,7 @@ const ItemList = () => {
   }, []);
 
   const handleReviewAdded = () => {
+    console.log("Review added, refreshing reviews list");
     setReviewRefreshTrigger(prev => prev + 1);
   };
 
@@ -146,7 +147,10 @@ const ItemList = () => {
                   <DialogTrigger asChild>
                     <Button 
                       className="w-full" 
-                      onClick={() => setSelectedItem(item)}
+                      onClick={() => {
+                        console.log("Opening dialog for item:", item.id, item.name);
+                        setSelectedItem(item);
+                      }}
                     >
                       <MessageCircle className="h-4 w-4 mr-2" />
                       View Reviews & Add Review
@@ -164,23 +168,29 @@ const ItemList = () => {
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <h3 className="font-semibold text-gray-900 mb-2">{selectedItem.name}</h3>
                             <p className="text-gray-600 text-sm mb-2">{selectedItem.description}</p>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-2">
                               <DollarSign className="h-4 w-4 text-green-600" />
                               <span className="font-bold text-green-700">
                                 ${typeof selectedItem.price === 'number' ? selectedItem.price.toFixed(2) : selectedItem.price}
                               </span>
                             </div>
+                            <p className="text-xs text-gray-400">Item ID: {selectedItem.id}</p>
                           </div>
                           
-                          <ReviewsList 
-                            itemId={selectedItem.id} 
-                            refreshTrigger={reviewRefreshTrigger}
-                          />
+                          <div>
+                            <h3 className="text-lg font-semibold mb-3">Customer Reviews</h3>
+                            <ReviewsList 
+                              itemId={selectedItem.id} 
+                              refreshTrigger={reviewRefreshTrigger}
+                            />
+                          </div>
                           
-                          <ReviewForm 
-                            itemId={selectedItem.id} 
-                            onReviewAdded={handleReviewAdded}
-                          />
+                          <div>
+                            <ReviewForm 
+                              itemId={selectedItem.id} 
+                              onReviewAdded={handleReviewAdded}
+                            />
+                          </div>
                         </>
                       )}
                     </div>

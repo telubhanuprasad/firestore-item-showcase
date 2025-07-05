@@ -17,26 +17,38 @@ const ReviewsList = ({ itemId, refreshTrigger }: ReviewsListProps) => {
 
   useEffect(() => {
     const fetchReviews = async () => {
+      console.log("ReviewsList: Fetching reviews for item:", itemId);
       setLoading(true);
       try {
         const fetchedReviews = await getReviewsForItem(itemId);
+        console.log("ReviewsList: Received reviews:", fetchedReviews);
         setReviews(fetchedReviews);
       } catch (error) {
-        console.error("Error fetching reviews:", error);
+        console.error("ReviewsList: Error fetching reviews:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReviews();
+    if (itemId) {
+      fetchReviews();
+    }
   }, [itemId, refreshTrigger]);
 
+  console.log("ReviewsList: Current state - loading:", loading, "reviews count:", reviews.length);
+
   if (loading) {
-    return <div className="text-center text-gray-500">Loading reviews...</div>;
+    return <div className="text-center text-gray-500 py-4">Loading reviews...</div>;
   }
 
   if (reviews.length === 0) {
-    return <div className="text-center text-gray-500">No reviews yet. Be the first to review!</div>;
+    return (
+      <div className="text-center text-gray-500 py-8">
+        <p>No reviews yet for this item.</p>
+        <p className="text-sm mt-2">Be the first to review!</p>
+        <p className="text-xs mt-2 text-gray-400">Item ID: {itemId}</p>
+      </div>
+    );
   }
 
   const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
